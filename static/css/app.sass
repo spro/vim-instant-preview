@@ -1,0 +1,44 @@
+$sizes
+    tab_height: 35px
+
+*
+    margin: 0
+    padding: 0
+    box-sizing: border-box
+
+body
+    font: 15px/20px "Helvetica Neue", Helvetica, sans-serif
+    padding-top: $sizes.tab_height
+    min-width: auto !important
+
+.tabs
+    position: fixed
+    top: 0
+    left: 0
+    right: 0
+    height: $sizes.tab_height
+    display: flex
+    align-items: stretch
+    background: #333
+
+    a
+        display: flex
+        align-items: center
+        cursor: pointer
+        color: inherit
+        padding: 0 10px
+        border-right: 1px solid #666
+        color: #999
+        font-weight: 500
+
+
+        &.open
+            color: #000
+            background: #fff
+
+pre
+    padding: 20px
+    font-size: 14px
+
+.markdown-body
+    padding: 30px

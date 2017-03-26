@@ -1,0 +1,8 @@
+{
+  "name": "vim-instant-preview",
+  "dependencies": {
+    "highlight.js": "^9.10.0",
+    "markdown-it": "^8.3.1",
+    "somata-socketio": "0.0.11"
+  }
+}
