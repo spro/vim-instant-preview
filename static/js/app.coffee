@@ -17,6 +17,42 @@ md = new MarkdownIt
             return str
         return
 
+getLitExtension = (filename) ->
+    if match = filename.match /\.(\w+)\.lit$/
+        return match[1]
+    else if match = filename.match /\.lit\.(\w+)$/
+        return match[1]
+    else if match = filename.match /\.lit(\w+)/
+        return match[1]
+
+extensionToFiletype = (ext) ->
+    switch ext
+        when 'coffee'
+            'coffeescript'
+        else ext
+
+transformLiterate = (ext, body) ->
+    lines = body.split('\n')
+    fixed_lines = []
+    in_block = false
+    li = 0
+    while li < lines.length
+        line = lines[li]
+        if line.slice(0, 4) == '    '
+            if !in_block
+                in_block = true
+                fixed_lines.push '```' + extensionToFiletype ext
+            fixed_lines.push line.slice(4)
+        else
+            if in_block and line.length > 0
+                in_block = false
+                while fixed_lines.slice(-1)[0].length == 0
+                    fixed_lines.pop()
+                fixed_lines.push '```'
+            fixed_lines.push line
+        li++
+    fixed_lines.join '\n'
+
 niceFilename = (filename) ->
     filename = filename.replace /^\/home\/\w+/, '~'
     filename = filename.replace /^\/Users\/\w+/, '~'
@@ -48,15 +84,24 @@ App = React.createClass
     openFilename: (open) ->
         @setState {open}
 
+    closeFilename: (filename) ->
+        {files} = @state
+        delete files[filename]
+        @setState {files}
+
     render: ->
         <div>
             <div className='tabs'>
                 {Object.keys(@state.files).map (filename) =>
-                    className = 'filename tab'
+                    className = 'tab'
                     if filename == @state.open
                         className += ' open'
                     open = @openFilename.bind(null, filename)
-                    <a onClick=open className=className><span>{niceFilename filename}</span></a>
+                    close = @closeFilename.bind(null, filename)
+                    <div className=className>
+                        <a onClick=open className='filename'>{niceFilename filename}</a>
+                        <a onClick=close className='close'>&times;</a>
+                    </div>
                 }
             </div>
 
@@ -64,6 +109,9 @@ App = React.createClass
                 contents = @state.files[filename]
                 if filename.match /\.md$/
                     html = md.render contents
+                    <div className='markdown-body' dangerouslySetInnerHTML={__html: html}></div>
+                else if ext = getLitExtension filename
+                    html = md.render transformLiterate ext, contents
                     <div className='markdown-body' dangerouslySetInnerHTML={__html: html}></div>
                 else
                     <pre>{contents}</pre>
